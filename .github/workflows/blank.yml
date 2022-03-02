@@ -32,7 +32,6 @@ jobs:
           sudo apt install crossbuild-essential-arm64
           curl https://codeload.github.com/raspberrypi/linux/tar.gz/refs/tags/stable_20211118 -o stable_20211118.tar.gz
           tar xf stable_20211118.tar.gz
-          cd linux
           KERNEL=kernel8
           make ARCH=arm64 CROSS_COMPILE=aarch64-linux-gnu- bcm2711_defconfig
 
