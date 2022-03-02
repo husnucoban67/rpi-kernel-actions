@@ -30,7 +30,7 @@ jobs:
         run: |
           sudo apt install git bc bison flex libssl-dev make libc6-dev libncurses5-dev
           sudo apt install crossbuild-essential-arm64
-          curl https://github.com/raspberrypi/linux/archive/refs/tags/stable_20211118.tar.gz -o stable_20211118.tar.gz
+          curl https://codeload.github.com/raspberrypi/linux/tar.gz/refs/tags/stable_20211118 -o stable_20211118.tar.gz
           tar xf stable_20211118.tar.gz
           cd linux
           KERNEL=kernel8
