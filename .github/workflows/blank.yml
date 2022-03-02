@@ -1,0 +1,60 @@
+# This is a basic workflow to help you get started with Actions
+
+name: rpi-kernel
+
+# Controls when the workflow will run
+on:
+  # Triggers the workflow on push or pull request events but only for the main branch
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+  # Allows you to run this workflow manually from the Actions tab
+  workflow_dispatch:
+
+# A workflow run is made up of one or more jobs that can run sequentially or in parallel
+jobs:
+  # This workflow contains a single job called "build"
+  build:
+    # The type of runner that the job will run on
+    runs-on: ubuntu-latest
+
+    # Steps represent a sequence of tasks that will be executed as part of the job
+    steps:
+      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
+      - uses: actions/checkout@v2
+
+      # Runs a set of commands using the runners shell
+      - name: Install files
+        run: |
+          apt install git bc bison flex libssl-dev make libc6-dev libncurses5-dev
+          apt install crossbuild-essential-arm64
+          curl https://github.com/raspberrypi/linux/archive/refs/tags/stable_20211118.tar.gz -o stable_20211118.tar.gz
+          tar xf stable_20211118.tar.gz
+          cd linux
+          KERNEL=kernel8
+          make ARCH=arm64 CROSS_COMPILE=aarch64-linux-gnu- bcm2711_defconfig
+
+
+
+      # Runs a set of commands using the runners shell
+      - name: Run a multi-line script
+        run: |
+          make ARCH=arm64 CROSS_COMPILE=aarch64-linux-gnu- Image modules dtbs
+          mkdir ../root
+          mkdir ../boot
+          env PATH=$PATH make ARCH=arm64 CROSS_COMPILE=aarch64-linux-gnu- INSTALL_MOD_PATH=../root/ modules_install
+          cp arch/arm64/boot/Image ../boot/$KERNEL.img
+          cp arch/arm64/boot/dts/broadcom/*.dtb ../boot/
+          cp arch/arm64/boot/dts/overlays/*.dtb* ../boot/overlays/
+          cp arch/arm64/boot/dts/overlays/README ../boot/overlays/
+          cd
+          zip -r stable_20211118.zip boot root
+          
+      - name: 'Upload Artifact'
+        uses: actions/upload-artifact@v2
+        with:
+            name: stable_20211118
+            path: stable_20211118.zip
+            retention-days: 7
